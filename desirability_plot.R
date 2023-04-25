@@ -1,17 +1,18 @@
 # Load necessary packages
 library(ggplot2)
 library(dplyr)
+library(gridExtra)
 
 # Define the desirability function
 desirability <- function(y_hat, L, T, U, s, t) {
   if (y_hat < L) {
     return(0)
   } else if (y_hat >= L & y_hat < T) {
-    return(((y_hat - L) / (T - L))^s)
+    return(((y_hat - L) / (T - L)) ^ s)
   } else if (y_hat == T) {
     return(1)
   } else if (y_hat > T & y_hat < U) {
-    return(((y_hat - U) / (T - U))^t)
+    return(((y_hat - U) / (T - U)) ^ t)
   } else {
     return(0)
   }
@@ -30,16 +31,32 @@ L <- 2
 T <- 5
 U <- 8
 
-df$desirability <- mapply(desirability, df$y_hat, L, T, U, df$s, df$t)
+df$desirability <-
+  mapply(desirability, df$y_hat, L, T, U, df$s, df$t)
 
 # Plot the desirability function using ggplot2
-ggplot(df, aes(x = y_hat, y = desirability, color = factor(s), linetype = factor(t))) +
+plot1 <-
+  ggplot(df,
+         aes(
+           x = y_hat,
+           y = desirability,
+           color = factor(s),
+           linetype = factor(t)
+         )) +
   geom_line(size = 1) +
-  labs(x = expression(hat(y)[i](x)), y = "Desirability", color = "s", linetype = "t") +
+  labs(
+    x = expression(hat(y)[i](x)),
+    y = "Desirability",
+    color = "s",
+    linetype = "t"
+  ) +
   scale_color_discrete("s") +
   scale_linetype_discrete("t") +
-  scale_x_continuous(breaks = c(L, T, U), labels = c(expression(L[i]), expression(T[i]),
-                                                     expression(U[i]))) +
+  scale_x_continuous(
+    breaks = c(L, T, U),
+    labels = c(expression(L[i]), expression(T[i]),
+               expression(U[i]))
+  ) +
   theme_bw() +
   theme(legend.position = "right",
         axis.text.x = element_text(size = 14))
@@ -49,7 +66,7 @@ desirability_max <- function(y_hat, L, U, s) {
   if (y_hat < L) {
     return(0)
   } else if (y_hat >= L & y_hat <= U) {
-    return(((y_hat - L) / (U - L))^s)
+    return(((y_hat - L) / (U - L)) ^ s)
   } else {
     return(1)
   }
@@ -64,14 +81,19 @@ df_max <- expand.grid(y_hat = y_hat_values, s = s_values)
 L <- 2
 U <- 8
 
-df_max$desirability <- mapply(desirability_max, df_max$y_hat, L, U, df_max$s)
+df_max$desirability <-
+  mapply(desirability_max, df_max$y_hat, L, U, df_max$s)
 
-#Modify the ggplot 
-ggplot(df_max, aes(x = y_hat, y = desirability, color = factor(s))) +
-  geom_line(size=1)  +
-  labs(x = expression(hat(y)[i](x)), y = "Desirability", color = "s") +
+#Modify the ggplot
+plot2 <-
+  ggplot(df_max, aes(x = y_hat, y = desirability, color = factor(s))) +
+  geom_line(size = 1)  +
+  labs(x = expression(hat(y)[i](x)),
+       y = "Desirability",
+       color = "s") +
   scale_color_discrete("s") +
-  scale_x_continuous(breaks = c(L, U), labels = c(expression(L[i]), expression(U[i]))) +
+  scale_x_continuous(breaks = c(L, U),
+                     labels = c(expression(L[i]), expression(U[i]))) +
   theme_bw() +
   theme(legend.position = "right",
         axis.text.x = element_text(size = 14))
@@ -82,7 +104,7 @@ desirability_min <- function(y_hat, L, U, t) {
   if (y_hat < L) {
     return(1)
   } else if (y_hat >= L & y_hat <= U) {
-    return(((U - y_hat) / (U - L))^t)
+    return(((U - y_hat) / (U - L)) ^ t)
   } else {
     return(0)
   }
@@ -90,21 +112,29 @@ desirability_min <- function(y_hat, L, U, t) {
 
 # Modify the dataset to include the desirability values for the new function
 y_hat_values <- seq(0, 10, length.out = 1000)
-t_values <- c( 1,0.2, 3)
+t_values <- c(1, 0.2, 3)
 
 df_min <- expand.grid(y_hat = y_hat_values, t = t_values)
 
 L <- 2
 U <- 8
 
-df_min$desirability <- mapply(desirability_min, df_min$y_hat, L, U, df_min$t)
+df_min$desirability <-
+  mapply(desirability_min, df_min$y_hat, L, U, df_min$t)
 
-# Modify the ggplot 
-ggplot(df_min, aes(x = y_hat, y = desirability, color = factor(t))) +
+# Modify the ggplot
+plot3 <-
+  ggplot(df_min, aes(x = y_hat, y = desirability, color = factor(t))) +
   geom_line(size = 1) +
-  labs(x = expression(hat(y)[i](x)), y = "Desirability", color = "t") +
+  labs(x = expression(hat(y)[i](x)),
+       y = "Desirability",
+       color = "t") +
   scale_color_discrete("t") +
-  scale_x_continuous(breaks = c(L, U), labels = c(expression(L[i]), expression(U[i]))) +
+  scale_x_continuous(breaks = c(L, U),
+                     labels = c(expression(L[i]), expression(U[i]))) +
   theme_bw() +
   theme(legend.position = "right",
         axis.text.x = element_text(size = 14))
+
+# Combine the three plots into a single column with three rows
+grid.arrange(plot1, plot2, plot3, ncol = 1)
