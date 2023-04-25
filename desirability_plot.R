@@ -59,15 +59,15 @@ desirability_max <- function(y_hat, L, U, s) {
 y_hat_values <- seq(0, 10, length.out = 1000)
 s_values <- c(0.2, 1, 3)
 
-data <- expand.grid(y_hat = y_hat_values, s = s_values)
+df_max <- expand.grid(y_hat = y_hat_values, s = s_values)
 
 L <- 2
 U <- 8
 
-data$desirability <- mapply(desirability_max, data$y_hat, L, U, data$s)
+df_max$desirability <- mapply(desirability_max, df_max$y_hat, L, U, df_max$s)
 
 #Modify the ggplot 
-ggplot(data, aes(x = y_hat, y = desirability, color = factor(s))) +
+ggplot(df_max, aes(x = y_hat, y = desirability, color = factor(s))) +
   geom_line(size=1)  +
   labs(x = expression(hat(y)[i](x)), y = "Desirability", color = "s") +
   scale_color_discrete("s") +
@@ -92,15 +92,15 @@ desirability_min <- function(y_hat, L, U, t) {
 y_hat_values <- seq(0, 10, length.out = 1000)
 t_values <- c( 1,0.2, 3)
 
-data <- expand.grid(y_hat = y_hat_values, t = t_values)
+df_min <- expand.grid(y_hat = y_hat_values, t = t_values)
 
 L <- 2
 U <- 8
 
-data$desirability <- mapply(desirability_min, data$y_hat, L, U, data$t)
+df_min$desirability <- mapply(desirability_min, df_min$y_hat, L, U, df_min$t)
 
 # Modify the ggplot 
-ggplot(data, aes(x = y_hat, y = desirability, color = factor(t))) +
+ggplot(df_min, aes(x = y_hat, y = desirability, color = factor(t))) +
   geom_line(size = 1) +
   labs(x = expression(hat(y)[i](x)), y = "Desirability", color = "t") +
   scale_color_discrete("t") +
