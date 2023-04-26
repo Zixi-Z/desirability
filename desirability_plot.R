@@ -44,6 +44,7 @@ plot1 <-
            linetype = factor(t)
          )) +
   geom_line(size = 1) +
+  ggtitle("A")+
   labs(
     x = expression(hat(y)[i](x)),
     y = "Desirability",
@@ -88,6 +89,7 @@ df_max$desirability <-
 plot2 <-
   ggplot(df_max, aes(x = y_hat, y = desirability, color = factor(s))) +
   geom_line(size = 1)  +
+  ggtitle("B")+
   labs(x = expression(hat(y)[i](x)),
        y = "Desirability",
        color = "s") +
@@ -126,6 +128,7 @@ df_min$desirability <-
 plot3 <-
   ggplot(df_min, aes(x = y_hat, y = desirability, color = factor(t))) +
   geom_line(size = 1) +
+  ggtitle("C")+
   labs(x = expression(hat(y)[i](x)),
        y = "Desirability",
        color = "t") +
