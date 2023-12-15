@@ -81,7 +81,7 @@ def d_min(x, cut1, cut2, scale=1):
     return d
 
 
-def d_overall(*args, weights=None):
+def d_overall(*args, p=0, weights=None):
     if len(args) == 0:
         raise ValueError("You need to include at least one set of desirability scores.")
 
@@ -90,21 +90,24 @@ def d_overall(*args, weights=None):
     if np.any(d_all < 0) or np.any(d_all > 1):
         raise ValueError("All desirability scores should fall within the range 0 to 1.")
 
-    if weights is not None:
+    if p == 0:  # Geometric mean
+        if weights is None:
+            weights = np.ones(d_all.shape[1]) / d_all.shape[1]
         if len(weights) != d_all.shape[1]:
             raise ValueError("The number of provided weights must match the number of desirability score sets.")
+        weighted_scores = np.power(d_all, weights)
+        product = np.nanprod(weighted_scores, axis=1)
+        sum_weights = np.sum(weights)
+        result = np.power(product, 1 / sum_weights)
+    elif p == 1:  # Arithmetic mean
+        result = np.nanmean(d_all, axis=1)
+    elif p == 2:  # Euclidean mean
+        result = np.sqrt(np.nansum(np.square(d_all), axis=1) / d_all.shape[1])
+    elif p == -np.inf:  # Minimum
+        result = np.nanmin(d_all, axis=1)
+    elif p == np.inf:  # Maximum
+        result = np.nanmax(d_all, axis=1)
     else:
-        weights = np.ones(d_all.shape[1]) / d_all.shape[1]
-
-    # Raise each score to its corresponding weight
-    weighted_scores = np.power(d_all, weights)
-
-    # Calculate the product along each row
-    product = np.nanprod(weighted_scores, axis=1)
-
-    # Calculate the weighted geometric mean
-    sum_weights = np.sum(weights)
-    result = np.power(product, 1/sum_weights)
+        raise ValueError("Invalid value of p. Choose from 0, 1, 2, -inf, inf.")
 
     return result
-
